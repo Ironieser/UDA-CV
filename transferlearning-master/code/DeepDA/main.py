@@ -44,7 +44,7 @@ def get_parser():
     # learning rate scheduler related
     parser.add_argument('--lr_gamma', type=float, default=0.0003)
     parser.add_argument('--lr_decay', type=float, default=0.75)
-    parser.add_argument('--lr_scheduler', type=str2bool, default=True)
+    parser.add_argument('--lr_sched uler', type=str2bool, default=True)
 
     # transfer related
     parser.add_argument('--transfer_loss_weight', type=float, default=10)
@@ -154,12 +154,15 @@ def train(source_loader, target_train_loader, target_test_loader, model, optimiz
         info = 'Epoch: [{:2d}/{}], cls_loss: {:.4f}, transfer_loss: {:.4f}, total_Loss: {:.4f}'.format(
                         e, args.n_epoch, train_loss_clf.avg, train_loss_transfer.avg, train_loss_total.avg)
         # Test
+
         stop += 1
         test_acc, test_loss = test(model, target_test_loader, args)
         info += ', test_loss {:4f}, test_acc: {:.4f}'.format(test_loss, test_acc)
         np_log = np.array(log, dtype=float)
+
         np.savetxt('train_log.csv', np_log, delimiter=',', fmt='%.6f')
         if best_acc < test_acc:
+            torch.save(model.state_dict(), 'model_best_adv.pkl')
             best_acc = test_acc
             stop = 0
         if args.early_stop > 0 and stop >= args.early_stop:

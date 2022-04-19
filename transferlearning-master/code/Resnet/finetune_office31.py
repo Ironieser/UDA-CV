@@ -3,13 +3,11 @@ from __future__ import print_function
 import argparse
 
 import data_loader
-import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
 import torchvision
 import time
-import ipdb
 
 # Command setting
 parser = argparse.ArgumentParser(description='Finetune')
@@ -27,21 +25,14 @@ parser.add_argument('--early_stop', type=int, default=20)
 args = parser.parse_args()
 
 # Parameter setting
-DEVICE = torch.device('cuda')
+DEVICE = torch.device('cpu')
 BATCH_SIZE = {'src': int(args.batchsize), 'tar': int(args.batchsize)}
 
-
-def load_model(name='alexnet'):
-    if name == 'alexnet':
-        model = torchvision.models.alexnet(pretrained=True)
-        n_features = model.classifier[6].in_features
-        fc = torch.nn.Linear(n_features, args.n_class)
-        model.classifier[6] = fc
-    elif name == 'resnet':
-        model = torchvision.models.resnet50(pretrained=True)
-        n_features = model.fc.in_features
-        fc = torch.nn.Linear(n_features, args.n_class)
-        model.fc = fc
+def load_model(model_name):
+    model = torchvision.models.resnet50(pretrained=True)
+    n_features = model.fc.in_features
+    fc = torch.nn.Linear(n_features, args.n_class)
+    model.fc = fc
     model.fc.weight.data.normal_(0, 0.005)
     model.fc.bias.data.fill_(0.1)
     return model
@@ -49,21 +40,12 @@ def load_model(name='alexnet'):
 
 def get_optimizer(model_name):
     learning_rate = args.lr
-    if model_name == 'alexnet':
-        param_group = [
-            {'params': model.features.parameters(), 'lr': learning_rate}]
-        for i in range(6):
-            param_group += [{'params': model.classifier[i].parameters(),
-                             'lr': learning_rate}]
-        param_group += [{'params': model.classifier[6].parameters(),
-                         'lr': learning_rate * 10}]
-    elif model_name == 'resnet':
-        param_group = []
-        for k, v in model.named_parameters():
-            if not k.__contains__('fc'):
-                param_group += [{'params': v, 'lr': learning_rate}]
-            else:
-                param_group += [{'params': v, 'lr': learning_rate * 10}]
+    param_group = []
+    for k, v in model.named_parameters():
+        if not k.__contains__('fc'):
+            param_group += [{'params': v, 'lr': learning_rate}]
+        else:
+            param_group += [{'params': v, 'lr': learning_rate * 10}]
     optimizer = optim.SGD(param_group, momentum=args.momentum)
     return optimizer
 
@@ -153,8 +135,9 @@ if __name__ == '__main__':
     # Load model
     model_name = str(args.model)
     model = load_model(model_name).to(DEVICE)
-    print('Source: {} ({}), target: {} ({}), model: {}'.format(
-        domain['src'], len(dataloaders['src'].dataset), domain['tar'], len(dataloaders['val'].dataset), model_name))
-    optimizer = get_optimizer(model_name)
-    model_best, best_acc = finetune(model, dataloaders, optimizer)
-    print('Best acc: {}'.format(best_acc))
+    print(model)
+    # print('Source: {} ({}), target: {} ({}), model: {}'.format(
+    #     domain['src'], len(dataloaders['src'].dataset), domain['tar'], len(dataloaders['val'].dataset), model_name))
+    # optimizer = get_optimizer(model_name)
+    # model_best, best_acc = finetune(model, dataloaders, optimizer)
+    # print('Best acc: {}'.format(best_acc))

@@ -12,26 +12,6 @@ resnet_dict = {
 def get_backbone(name):
     if "resnet" in name.lower():
         return ResNetBackbone(name)
-    elif "dann" == name.lower():
-        return DaNNBackbone()
-
-class DaNNBackbone(nn.Module):
-    def __init__(self, n_input=224*224*3, n_hidden=256):
-        super(DaNNBackbone, self).__init__()
-        self.layer_input = nn.Linear(n_input, n_hidden)
-        self.dropout = nn.Dropout(p=0.5)
-        self.relu = nn.ReLU()
-        self._feature_dim = n_hidden
-
-    def forward(self, x):
-        x = x.view(x.size(0), -1)
-        x = self.layer_input(x)
-        x = self.dropout(x)
-        x = self.relu(x)
-        return x
-
-    def output_num(self):
-        return self._feature_dim
 
 
 class ResNetBackbone(nn.Module):

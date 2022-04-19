@@ -6,19 +6,26 @@
 \usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage{amssymb}
-
-
+\usepackage{multirow}
+\usepackage{bigstrut}
 % Include other packages here, before hyperref.
 
 % If you comment hyperref and then uncomment it, you should delete
 % egpaper.aux before re-running latex.  (Or just hit 'q' on the first latex
 % run, let it finish, and you should be clear).
 \usepackage[breaklinks=true,bookmarks=false]{hyperref}
-
+\usepackage[capitalize]{cleveref}
+\crefname{section}{Sec.}{Secs.}
+\Crefname{section}{Section}{Sections}
+\Crefname{table}{Table}{Tables}
+\Crefname{figure}{Fig.}{Figs.}
+\crefname{table}{Tab.}{Tabs.}
 \cvprfinalcopy % *** Uncomment this line for the final submission
 
 \def\cvprPaperID{****} % *** Enter the CVPR Paper ID here
 \def\httilde{\mbox{\tt\raisebox{-.5ex}{\symbol{126}}}}
+
+
 
 % Pages are numbered in submission mode, and unnumbered in camera-ready
 %\ifcvprfinal\pagestyle{empty}\fi
@@ -28,11 +35,11 @@
 %%%%%%%%% TITLE
 \title{CS272 Computer Vision II: \\ Homework Instruction and Report Template}
 
-\author{First Author\\
-Student ID\\
+\author{Sixun Dong \\
+2021233155\\
 %Institution1\\
 %Institution1 address\\
-{\tt\small firstauthor@i1.org}
+{\tt\small dongsx@shanghaitech.edu.cn}
 % For a paper whose authors are all at the same institution,
 % omit the following lines up until the closing ``}''.
 % Additional authors and addresses can be added with ``\and'',
@@ -50,40 +57,82 @@ Student ID\\
 
 %%%%%%%%% ABSTRACT
 \begin{abstract}
-This \LaTeX\ file is the template of Homework report in CS272 Computer Vision II. Reports in other formats are not acceptable, and once you submit reports in other formats, the score of your homework report would be set to zero. Also, to help you with your studies, please read the following text before you begin.
+The homework2 of CV2 by Dong Sixun\footnote[1]{The implement of model is referred: \url{https://github.com/jindongwang/transferlearning}} . 
 \end{abstract}
 
 %%%%%%%%% BODY TEXT
-\section{Introduction}
-The homework report is important for TAs, since we need to mark your assignments by reading the reports and checking out your code. Therefore, we provide a template for you. We downloaded and modified this template from website of conference of computer vision and pattern recognition (CVPR) 2021: \url{http://cvpr2021.thecvf.com}.
+\section{Q1}
+\subsection{Checkpoints}
+Show images in each domain of Office-31, give a whole picture over the UDA problem including setting and few introductions. Show your model and according Results. (30 pts)
 
-Some requirements are described in the following sections, please make sure you have read it before you submit your homeworks.
+\subsection{Solution}
+\paragraph{Setting:}
+The setting of UDA as \cref{fig:uda} shown. And the example of dataset and domains are as \cref{fig:dataset} shown. 
+\paragraph{UDA:}
+The source domain and the target domain share the same features and categories, but the feature distributions are different. How to use the informative source domain samples to improve the performance of the target domain model. The source domain represents a field different from the test sample and has rich supervised annotation information; the target domain represents the field where the test sample is located, with no labels or only a few labels. The source and target domains tend to belong to the same class of tasks, but with different distributions.
+\begin{figure*}[ht]
+    \centering 
+    \includegraphics[width=0.8\textwidth]{uda.png} 
+    \caption{An Overview of Different Settings of Transfer\cite{pan2009survey}.}
+    \label{fig:uda} 
+\end{figure*}
+\begin{figure}[ht]
+    \centering 
+    \includegraphics[width=0.5\columnwidth]{dataset.png} 
+    \caption{The example of the dataset office-31}
+    \label{fig:dataset} 
+\end{figure}
+\paragraph{Experiment:}
+The model as \cref{fig:q1} shown.
+I finetune the last layer to let the outdim be 31, equal to the number of classes.
+The model is trained 100 epoch and I used early stop, SGD, batch size $64$ and lr  $1e-4$. Others uses default parameters.
+And I use \textbf{amazon} as source domain and anothers as target domains. The loss function I choosed and result as \cref{tab:result} shown. 
+All experiments use three kinds of data augment: RandomCrop, RandomHorizontalFlip and Normalize.
+\begin{figure}[ht]
+    \centering 
+    \includegraphics[width=1\columnwidth]{q1model.png} 
+    \caption{the model of Q1}
+    \label{fig:q1} 
+\end{figure}
 
-\section{Homework Rules}
+\begin{table}[htbp]
+    \centering
+    \caption{The result of Q1, Q2 and Q3}
+    \begin{tabular}{c|c|c}
+        \hline
+        \multirow{2}[4]{*}{\textbf{Mothed}}      & \multicolumn{2}{c}{\textbf{ACC}} \bigstrut                          \\
+        \cline{2-3}                              & \textbf{A-D}                               & \textbf{A-W} \bigstrut \\
+        \hline
+        Resnet50 + CE\cite{targ2016resnet}            & 76.1104                                    & 74.8428 \bigstrut[t]   \\
+        Resnet50 + MMD\cite{long2015learning}      & 83.7349                                    & 85.5346                \\
+        Resnet50 + ADV\cite{ganin2015unsupervised} & 81.7269                                    & 81.7269 \bigstrut[b]   \\
+        \hline
+    \end{tabular}%
+    \label{tab:result}%
+\end{table}% 
+\section{Q2}
+\subsection{Checkpoints}
+Specify how MMD help in DA from your view, show the results.
+\subsection{Solution}
+\paragraph{MMD:}
+MMD is used as a test statistic to judge wether any order of two random variables is the same, then the two distributions are consistent. And when the two distributions are not the same, then the moment that makes the largest difference between the two distributions should be used as the standard to measure the two distributions.
+\paragraph{Experiment:}
+Use SGD as optimizer and use default parameters. Batch size is 32. LR is $3e-3$ and I didn't use early stop but use learn rate decay which is $0.75$.
+The model is trained 20 epoch and find out the best performance for the valid set. Then test on the target domain. Following the Q1, I choose \textbf{amazon} as source domain and anothers as target domains. The result is as \cref{tab:result} shown, where \textbf{A-D} means \textbf{amazon} is source domain and \textbf{dslr} as target domain and \textbf{A-W} means \textbf{amazon} is source domain and \textbf{webcam} as target domain. 
+All experiments use three kinds of data augment: RandomCrop, RandomHorizontalFlip and Normalize.
+\section{Q3}
 
-\subsection{Academic Integrity and Ethics}
- ShanghaiTech University focuses on the cultivation of students' academic integrity and academic ethics.  Like some other famous universities, all the students in ShanghaiTech University are required to be honesty, integrity, and ethical. The details of similar requirements can be found in the Center for Teaching and Learning of Berkeley~\cite{rules}. Please make sure you obey the rules during studying and finishing homeworks.
- 
- \subsection{Code}
- We do not limit the use of programming languages, and you should use comments wisely to explain your code.
- 
- \subsection{Report}
- The report should be written with this template, and it must contain the following sections at least. \romannumeral1) a formula or principle for solving a problem to describe your method, \romannumeral2) the results to prove the effectiveness of your solution, \romannumeral3) your thoughts or conclusion, \romannumeral4) references that you mainly refers to.
- 
-\subsection{Submission}
-Please submit your homework on gradescope: \url{https://www.gradescope.com/courses/378091}. The entry code for the course is \textbf{2RZXEE} and due date of each homework would be clearly described on the website. We require the students to submit both homework codes and reports on gradescope.
- \begin{itemize}
-\item The code should be well arranged if you have more than one file and if you do that, please describe the working logic of the code in the report. Make sure your code works, because TAs won't debug your codes. For the data path, if we do not provide data of homeworks to you, please put the data in your code folder and submit them. If we provide you homework data, putting the data folder parallel to the code folder and submit your code folder only. 
- \end{itemize}
-\begin{itemize}
-\item You should submit a PDF version of the report only.
-\end{itemize}
-
-\subsection{Punishment}
-Any violation of the rules will be punished. If we find that your homework is plagiarized or you plagiarized homework of others, the first time your homework will be marked as zero, and after the second time, we will report your situation to the academic committee. Besides, late submission is not acceptable. If you submit your homeworks late, it will be marked as zero for any reason.
-
-\section{Contact to TAs}
-If you have any problems with the homework or this instruction, please contact to TAs first. Misunderstanding this instruction does not excuse you from breaking the rules of the course. All relevant informations of TAs are shown in the first slide. 
+\subsection{Checkpoints}
+Specify how GAN works and introduce your design. Show the testing performance. (30 pts)
+\subsection{Solution}
+\paragraph{The help of GAN:}
+In the domain adaptation problem, there is a source domain and a target domain. Compared with generative adversarial networks, the domain adaptation problem eliminates the process of generating samples and directly regards the data in the target domain as generated samples. Therefore, the purpose of the generator has changed. It is no longer to generate samples, but to act as a feature extractor, that is, how to extract features from the source domain and the target domain, so that the discriminator cannot distinguish the extracted features. From the source domain, or the target\cite{ganin2015unsupervised}.
+\paragraph{Experiment:}
+Use SGD as optimizer and use default parameters. Batch size is 32. LR is $1e-2$ and I didn't use early stop but use learn rate decay which is $0.75$.
+The model is trained 20 epoch and find out the best performance for the valid set. Then test on the target domain. Following the Q1 and Q2, I choose \textbf{amazon} as source domain and anothers as target domains. The result is as \cref{tab:result} shown, where \textbf{A-D} means \textbf{amazon} is source domain and \textbf{dslr} as target domain and \textbf{A-W} means \textbf{amazon} is source domain and \textbf{webcam} as target domain. 
+All experiments use three kinds of data augment: RandomCrop, RandomHorizontalFlip and Normalize.
+\section{Q4}
+Give up.
 
 
 {\small

@@ -1,7 +1,26 @@
 \begin{thebibliography}{1}\itemsep=-1pt
 
-\bibitem{rules}
-Center for teaching and learning of berkeley.
-\newblock \url{https://teaching.berkeley.edu/statements-course-policies}.
+\bibitem{ganin2015unsupervised}
+Yaroslav Ganin and Victor Lempitsky.
+\newblock Unsupervised domain adaptation by backpropagation.
+\newblock In {\em International conference on machine learning}, pages
+  1180--1189. PMLR, 2015.
+
+\bibitem{long2015learning}
+Mingsheng Long, Yue Cao, Jianmin Wang, and Michael Jordan.
+\newblock Learning transferable features with deep adaptation networks.
+\newblock In {\em International conference on machine learning}, pages 97--105.
+  PMLR, 2015.
+
+\bibitem{pan2009survey}
+Sinno~Jialin Pan and Qiang Yang.
+\newblock A survey on transfer learning.
+\newblock {\em IEEE Transactions on knowledge and data engineering},
+  22(10):1345--1359, 2009.
+
+\bibitem{targ2016resnet}
+Sasha Targ, Diogo Almeida, and Kevin Lyman.
+\newblock Resnet in resnet: Generalizing residual architectures.
+\newblock {\em arXiv preprint arXiv:1603.08029}, 2016.
 
 \end{thebibliography}
